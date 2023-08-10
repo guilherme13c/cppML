@@ -30,14 +30,16 @@ class Mat {
     void fill(float v);
     void random_fill(const float low, const float high);
     Mat sub(int row0, int col0, int row1, int col1);
-    Mat operator*(Mat &other);
+    Mat operator*(Mat other);
     Mat operator*(float a);
-    Mat operator+(Mat &other);
-    Mat operator-(Mat &other);
+    Mat operator+(Mat other);
+    Mat operator-(Mat other);
     friend std::ostream &operator<<(std::ostream &os, Mat &m);
     Mat apply(std::function<float(float)> func);
     uint row_count();
     uint col_count();
+    Mat transpose();
+    float sum();
 };
 
 } // namespace linalg
@@ -109,7 +111,7 @@ linalg::Mat linalg::Mat::sub(int row0, int col0, int row1, int col1) {
     return subMatrix;
 }
 
-linalg::Mat linalg::Mat::operator*(linalg::Mat &other) {
+linalg::Mat linalg::Mat::operator*(linalg::Mat other) {
     assert(this->data != nullptr);
     assert(other.data != nullptr);
     assert(this->ncols == other.nrows);
@@ -142,7 +144,7 @@ linalg::Mat linalg::Mat::operator*(float a) {
     return result;
 }
 
-linalg::Mat linalg::Mat::operator+(linalg::Mat &other) {
+linalg::Mat linalg::Mat::operator+(linalg::Mat other) {
     assert(this->data != nullptr);
     assert(other.data != nullptr);
     assert(this->ncols == other.ncols);
@@ -159,7 +161,7 @@ linalg::Mat linalg::Mat::operator+(linalg::Mat &other) {
     return result;
 }
 
-linalg::Mat linalg::Mat::operator-(linalg::Mat &other) {
+linalg::Mat linalg::Mat::operator-(linalg::Mat other) {
     assert(this->data != nullptr);
     assert(other.data != nullptr);
     assert(this->ncols == other.ncols);
@@ -210,3 +212,31 @@ linalg::Mat linalg::Mat::apply(std::function<float(float)> func) {
 linalg::uint linalg::Mat::row_count() { return this->nrows; }
 
 linalg::uint linalg::Mat::col_count() { return this->ncols; }
+
+linalg::Mat linalg::Mat::transpose() {
+    assert(data != nullptr);
+
+    linalg::Mat result(this->ncols, this->nrows);
+
+    for (uint i = 0; i < this->ncols; i++) {
+        for (uint j = 0; j < this->nrows; j++) {
+            result.at(i, j) = this->at(j, i);
+        }
+    }
+
+    return result;
+}
+
+float linalg::Mat::sum() {
+    assert(this->data != nullptr);
+
+    float total = 0.0f;
+
+    for (uint i = 0; i < this->nrows; i++) {
+        for (uint j = 0; j < this->ncols; j++) {
+            total += this->at(i, j);
+        }
+    }
+
+    return total;
+}

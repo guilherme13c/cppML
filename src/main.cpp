@@ -17,22 +17,13 @@ int main(void) {
     std::cout << datain;
     std::cout << dataout;
 
-    activation act{.f = functions::sigmoidf, .f_ = derivatives::sigmoidf_};
+    std::vector<Layer> layers = {
+        Layer(datain.col_count(), 4, activations["relu"]),
+        Layer(4, 1, activations["relu"])};
+    NeuralNetwork model =
+        NeuralNetwork(datain.col_count(), dataout.col_count(), layers);
 
-    Layer l1 = Layer(datain.col_count(), dataout.col_count(), act);
-
-    for (linalg::uint i = 0; i < datain.row_count(); i++) {
-        linalg::Mat in(datain.col_count(), 1);
-
-        for (linalg::uint j = 0; j < datain.col_count(); j++) {
-            in.at(j, 0) = datain.at(i, j);
-        }
-
-        std::cout << "In:\t" << in;
-
-        linalg::Mat out = l1.forward(in);
-        std::cout << "Out:\t" << out;
-    }
+    model.train(datain, dataout, 1e-3, 10);
 
     return 0;
 }
