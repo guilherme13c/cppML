@@ -30,6 +30,8 @@ class Mat {
     void fill(float v);
     void random_fill(const float low, const float high);
     Mat sub(int row0, int col0, int row1, int col1);
+    Mat get_row(uint row);
+    Mat get_col(uint col);
     Mat operator*(Mat other);
     Mat operator*(float a);
     Mat operator+(Mat other);
@@ -40,6 +42,8 @@ class Mat {
     uint col_count();
     Mat transpose();
     float sum();
+    float mean();
+    Mat elementwise_product(Mat other);
 };
 
 } // namespace linalg
@@ -109,6 +113,16 @@ linalg::Mat linalg::Mat::sub(int row0, int col0, int row1, int col1) {
     }
 
     return subMatrix;
+}
+
+linalg::Mat linalg::Mat::get_row(uint row) {
+    assert(row < this->row_count());
+    return this->sub(row, 0, row + 1, this->col_count());
+}
+
+linalg::Mat linalg::Mat::get_col(uint col) {
+    assert(col < this->col_count());
+    return this->sub(0, col, this->row_count(), col + 1);
 }
 
 linalg::Mat linalg::Mat::operator*(linalg::Mat other) {
@@ -239,4 +253,36 @@ float linalg::Mat::sum() {
     }
 
     return total;
+}
+
+float linalg::Mat::mean() {
+    return this->sum() / (this->col_count() * this->row_count());
+}
+
+linalg::Mat linalg::Mat::elementwise_product(linalg::Mat other) {
+    assert(this->ncols == other.ncols);
+    assert(this->nrows == other.nrows);
+
+    linalg::Mat ans = linalg::Mat(this->nrows, this->ncols);
+
+    for (auto i = 0; i < this->nrows; i++) {
+        for (auto j = 0; j < this->ncols; j++) {
+            ans.at(i, j) = this->at(i, j) * other.at(i, j);
+        }
+    }
+
+    return ans;
+}
+
+linalg::Mat log(linalg::Mat &input) {
+    // Calculate the element-wise natural logarithm (base e)
+    linalg::Mat result(input.row_count(), input.col_count());
+
+    for (linalg::uint i = 0; i < input.row_count(); i++) {
+        for (linalg::uint j = 0; j < input.col_count(); j++) {
+            result.at(i, j) = std::log(input.at(i, j));
+        }
+    }
+
+    return result;
 }
