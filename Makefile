@@ -1,30 +1,20 @@
-# Makefile for building the program and library
+CC = g++
+CFLAGS = -O3 -Wall -Wno-sign-compare -std=c++20 -I/usr/include/linalg -L/usr/lib
+LIBRARIES = -llinalg
 
-# Directories
-BIN_DIR := bin
-INCLUDE_DIR := inc
-SRC_DIR := src
+SOURCES := src/test.cpp
+OBJECTS := $(SOURCES:src/%.cpp=obj/%.o)
 
-# Compiler settings
-CC := clang++
-CFLAGS := -Wall -Wextra -pedantic -std=c++20 -fcolor-diagnostics
-INC_FLAGS := -I$(INCLUDE_DIR)
+TEST_EXECUTABLE = bin/test
 
-# Source file and output executable
-SOURCE := $(SRC_DIR)/main.cpp
-OUTPUT := $(BIN_DIR)/main
+$(TEST_EXECUTABLE): $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) -o $(TEST_EXECUTABLE) $(LIBRARIES)
 
-# Operating system check
-ifeq ($(OS),Windows_NT)
-	EXECUTABLE := $(OUTPUT).exe
-else
-	EXECUTABLE := $(OUTPUT)
-endif
+obj/%.o: src/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(EXECUTABLE)
-
-$(EXECUTABLE): $(SOURCE)
-	$(CC) $(CFLAGS) $(INC_FLAGS) $(SOURCE) -o $(EXECUTABLE)
+test: $(TEST_EXECUTABLE)
+	$(TEST_EXECUTABLE)
 
 clean:
-	rm -f $(EXECUTABLE)
+	rm -rf $(OBJECTS) $(TEST_EXECUTABLE)
